@@ -1,0 +1,362 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/REPOSITORY_OWNER/reasoning-resource-governance/blob/main/schemas/rrg-v0.1.schema.json",
+  "title": "Reasoning Resource Governance (RRG) v0.1",
+  "description": "A minimal, model-agnostic governance record for AI reasoning resource allocation, recording, evaluation, and termination.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "rrg_version",
+    "record_id",
+    "question_id",
+    "authorization",
+    "budget",
+    "risk_level",
+    "allocation",
+    "execution",
+    "evaluation",
+    "termination"
+  ],
+  "properties": {
+    "rrg_version": {
+      "type": "string",
+      "const": "0.1.0"
+    },
+    "record_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "question_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "authorization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "scope"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "valid",
+            "missing",
+            "invalid",
+            "revoked"
+          ]
+        },
+        "scope": {
+          "type": "string"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "valid"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "scope": {
+                "minLength": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "unit",
+        "requested",
+        "available",
+        "limit"
+      ],
+      "properties": {
+        "unit": {
+          "type": "string",
+          "enum": [
+            "tokens",
+            "cost_units"
+          ]
+        },
+        "requested": {
+          "type": "number",
+          "minimum": 0
+        },
+        "available": {
+          "type": "number",
+          "minimum": 0
+        },
+        "limit": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    },
+    "risk_level": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ]
+    },
+    "allocation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "decision",
+        "reason"
+      ],
+      "properties": {
+        "decision": {
+          "type": "string",
+          "enum": [
+            "approved",
+            "denied"
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "execution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "consumed"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "not_started",
+            "running",
+            "completed",
+            "terminated"
+          ]
+        },
+        "consumed": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    },
+    "evaluation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "budget_compliant",
+        "outcome_status"
+      ],
+      "properties": {
+        "budget_compliant": {
+          "type": "boolean"
+        },
+        "outcome_status": {
+          "type": "string",
+          "enum": [
+            "not_evaluated",
+            "sufficient",
+            "insufficient",
+            "unverified"
+          ]
+        }
+      }
+    },
+    "termination": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "closed",
+        "reason"
+      ],
+      "properties": {
+        "closed": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string",
+          "enum": [
+            "none",
+            "completed",
+            "budget_exceeded",
+            "authorization_violation",
+            "authorization_revoked",
+            "allocation_denied"
+          ]
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "allocation": {
+            "properties": {
+              "decision": {
+                "const": "denied"
+              }
+            },
+            "required": [
+              "decision"
+            ]
+          }
+        },
+        "required": [
+          "allocation"
+        ]
+      },
+      "then": {
+        "properties": {
+          "execution": {
+            "properties": {
+              "status": {
+                "const": "not_started"
+              },
+              "consumed": {
+                "const": 0
+              }
+            }
+          },
+          "evaluation": {
+            "properties": {
+              "outcome_status": {
+                "const": "not_evaluated"
+              }
+            }
+          },
+          "termination": {
+            "properties": {
+              "closed": {
+                "const": true
+              },
+              "reason": {
+                "const": "allocation_denied"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "execution": {
+            "properties": {
+              "status": {
+                "const": "running"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          }
+        },
+        "required": [
+          "execution"
+        ]
+      },
+      "then": {
+        "properties": {
+          "termination": {
+            "properties": {
+              "closed": {
+                "const": false
+              },
+              "reason": {
+                "const": "none"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "execution": {
+            "properties": {
+              "status": {
+                "const": "completed"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          }
+        },
+        "required": [
+          "execution"
+        ]
+      },
+      "then": {
+        "properties": {
+          "termination": {
+            "properties": {
+              "closed": {
+                "const": true
+              },
+              "reason": {
+                "const": "completed"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "execution": {
+            "properties": {
+              "status": {
+                "const": "terminated"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          }
+        },
+        "required": [
+          "execution"
+        ]
+      },
+      "then": {
+        "properties": {
+          "termination": {
+            "properties": {
+              "closed": {
+                "const": true
+              },
+              "reason": {
+                "enum": [
+                  "budget_exceeded",
+                  "authorization_violation",
+                  "authorization_revoked"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
