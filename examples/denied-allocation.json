@@ -1,0 +1,32 @@
+{
+  "rrg_version": "0.1.0",
+  "record_id": "rrg-denied-allocation-001",
+  "question_id": "question-resource-request-002",
+  "authorization": {
+    "status": "valid",
+    "scope": "document-analysis"
+  },
+  "budget": {
+    "unit": "tokens",
+    "requested": 15000,
+    "available": 10000,
+    "limit": 10000
+  },
+  "risk_level": "low",
+  "allocation": {
+    "decision": "denied",
+    "reason": "Requested reasoning resources exceed the available budget and authorized limit."
+  },
+  "execution": {
+    "status": "not_started",
+    "consumed": 0
+  },
+  "evaluation": {
+    "budget_compliant": true,
+    "outcome_status": "not_evaluated"
+  },
+  "termination": {
+    "closed": true,
+    "reason": "allocation_denied"
+  }
+}
