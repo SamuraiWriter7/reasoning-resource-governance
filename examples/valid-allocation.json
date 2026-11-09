@@ -1,0 +1,32 @@
+{
+  "rrg_version": "0.1.0",
+  "record_id": "rrg-valid-allocation-001",
+  "question_id": "question-document-analysis-001",
+  "authorization": {
+    "status": "valid",
+    "scope": "document-analysis"
+  },
+  "budget": {
+    "unit": "tokens",
+    "requested": 5000,
+    "available": 10000,
+    "limit": 5000
+  },
+  "risk_level": "low",
+  "allocation": {
+    "decision": "approved",
+    "reason": "Authorization is valid and requested resources are within available and authorized limits."
+  },
+  "execution": {
+    "status": "completed",
+    "consumed": 3200
+  },
+  "evaluation": {
+    "budget_compliant": true,
+    "outcome_status": "sufficient"
+  },
+  "termination": {
+    "closed": true,
+    "reason": "completed"
+  }
+}
